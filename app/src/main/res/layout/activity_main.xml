@@ -89,13 +89,24 @@
                 android:text="@string/unknownLongLat"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
+            <TextView
+                android:id="@+id/acceleratorValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/latitudeValue"
+                android:layout_marginTop="5dp"
+                android:layout_weight="0.13"
+                android:text="accelerometer"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+
             <ToggleButton
                 android:id="@+id/toggleButton"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/speedTextView"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="50dp"
+                android:layout_marginTop="70dp"
                 android:text="New ToggleButton"
                 android:textOff="@string/toggle_turn_off"
                 android:textOn="@string/toggle_turn_on" />

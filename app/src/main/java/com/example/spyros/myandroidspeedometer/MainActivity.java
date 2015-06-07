@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -33,10 +34,12 @@ public class MainActivity extends ActionBarActivity implements LocationListener,
     ToggleButton toggleButton;
     TextView longitudeValue;
     TextView latitudeValue;
+    TextView acceleratorValue;
 
     private long lastUpdate = 0;
     private float last_x, last_y, last_z;
-    private static final int SHAKE_THRESHOLD = 600;
+    private static final int SHAKE_THRESHOLD = 10;
+    private float currentSpeed = 0.0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +49,8 @@ public class MainActivity extends ActionBarActivity implements LocationListener,
         toggleButton = (ToggleButton) findViewById(R.id.toggleButton);
         longitudeValue = (TextView) findViewById(R.id.longitudeValue);
         latitudeValue = (TextView) findViewById(R.id.latitudeValue);
+        acceleratorValue = (TextView) findViewById(R.id.acceleratorValue);
+
         toggleButton.setChecked(true);
         toggleButton.setOnClickListener(this);
 
@@ -58,7 +63,7 @@ public class MainActivity extends ActionBarActivity implements LocationListener,
         senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
         //turn on speedometer using GPS
-        turnOnSpeedometer();
+        turnOnGps();
     }
 
     protected void onPause() {
@@ -100,36 +105,39 @@ public class MainActivity extends ActionBarActivity implements LocationListener,
         latitudeValue.setText(String.valueOf(lat));
         longitudeValue.setText(String.valueOf(lng));
 
-        if (location.hasSpeed()) {
-
-            float currentSpeed = location.getSpeed() * 3.6f;
-            speedTextView.setText(new DecimalFormat("#.##").format(currentSpeed));
-        } else {
-            speedTextView.setText("0");
-        }
+        currentSpeed = location.getSpeed() * 3.6f;
+        speedTextView.setText(new DecimalFormat("#.##").format(currentSpeed));
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-
+        //if provider failed to get location try use another provider (Internet, GPS etc...)
+        if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.ACCURACY_FINE);
+            criteria.setCostAllowed(false);
+            String providerName = locationManager.getBestProvider(criteria, true);
+            //and then you can make location update request with selected best provider
+            locationManager.requestLocationUpdates(providerName, 1000, 5, this);
+        }
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        turnOnSpeedometer();
+        turnOnGps();
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        turnOffSpeedometer();
+        turnOffGps();
 
     }
 
-    private void turnOnSpeedometer() {
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, this);
+    private void turnOnGps() {
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, this);
     }
 
-    private void turnOffSpeedometer() {
+    private void turnOffGps() {
         speedTextView.setText("0");
         longitudeValue.setText(getResources().getString(R.string.unknownLongLat));
         latitudeValue.setText(getResources().getString(R.string.unknownLongLat));
@@ -147,9 +155,9 @@ public class MainActivity extends ActionBarActivity implements LocationListener,
         if (v.getId() == R.id.toggleButton) {
             vibrate();
             if (toggleButton.isChecked()) {
-                turnOnSpeedometer();
+                turnOnGps();
             } else {
-                turnOffSpeedometer();
+                turnOffGps();
             }
         }
     }
@@ -168,10 +176,18 @@ public class MainActivity extends ActionBarActivity implements LocationListener,
                 long diffTime = (curTime - lastUpdate);
                 lastUpdate = curTime;
 
-                float speed = Math.abs(x + y + z - last_x - last_y - last_z)/ diffTime * 10000;
+                float speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
 
                 if (speed < SHAKE_THRESHOLD) {
-                    //speedTextView.setText("0");
+                    if (currentSpeed > 0) {
+                        currentSpeed = currentSpeed - 1;
+                    } else {
+                        currentSpeed = 0;
+                    }
+                    speedTextView.setText(new DecimalFormat("#.##").format(currentSpeed));
+                    acceleratorValue.setText("stopped");
+                } else {
+                    acceleratorValue.setText("moving");
                 }
 
                 last_x = x;
