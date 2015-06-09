@@ -24,7 +24,7 @@ import java.text.DecimalFormat;
 
 
 public class MainActivity extends ActionBarActivity implements LocationListener,
-        View.OnClickListener, SensorEventListener {
+        View.OnClickListener {
 
     private LocationManager locationManager;
     private SensorManager senSensorManager;
@@ -58,22 +58,25 @@ public class MainActivity extends ActionBarActivity implements LocationListener,
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         //setup accelerometer sensor
+        /*
         senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-
+        */
         //turn on speedometer using GPS
         turnOnGps();
     }
 
     protected void onPause() {
         super.onPause();
-        senSensorManager.unregisterListener(this);
+        //senSensorManager.unregisterListener(this);
+        turnOffGps();
     }
 
     protected void onResume() {
         super.onResume();
-        senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+       //senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        turnOnGps();
     }
 
     @Override
@@ -111,15 +114,6 @@ public class MainActivity extends ActionBarActivity implements LocationListener,
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        //if provider failed to get location try use another provider (Internet, GPS etc...)
-        if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            Criteria criteria = new Criteria();
-            criteria.setAccuracy(Criteria.ACCURACY_FINE);
-            criteria.setCostAllowed(false);
-            String providerName = locationManager.getBestProvider(criteria, true);
-            //and then you can make location update request with selected best provider
-            locationManager.requestLocationUpdates(providerName, 1000, 5, this);
-        }
     }
 
     @Override
@@ -134,7 +128,13 @@ public class MainActivity extends ActionBarActivity implements LocationListener,
     }
 
     private void turnOnGps() {
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, this);
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        }
+
+        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+        }
     }
 
     private void turnOffGps() {
@@ -196,9 +196,9 @@ public class MainActivity extends ActionBarActivity implements LocationListener,
             }
         }
     }
-
+/*
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
-    }
+    }*/
 }
