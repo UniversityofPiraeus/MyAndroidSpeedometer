@@ -35,7 +35,7 @@
                 android:layout_marginTop="20dp"
                 android:text="0"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textSize="120sp" />
+                android:textSize="85sp" />
 
             <TextView
                 android:id="@+id/kmhTextView"
@@ -100,18 +100,18 @@
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
 
-            <ToggleButton
-                android:id="@+id/toggleButton"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/speedTextView"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="70dp"
-                android:text="New ToggleButton"
-                android:textOff="@string/toggle_turn_off"
-                android:textOn="@string/toggle_turn_on" />
         </RelativeLayout>
     </ScrollView>
+
+    <ToggleButton
+        android:id="@+id/toggleButton"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="New ToggleButton"
+        android:textOff="@string/toggle_turn_off"
+        android:textOn="@string/toggle_turn_on"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
 
 </RelativeLayout>

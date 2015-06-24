@@ -129,16 +129,15 @@ public class MainActivity extends ActionBarActivity implements LocationListener,
 
     private void turnOnGps() {
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1000, this);
         }
 
         if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1000, this);
         }
     }
 
     private void turnOffGps() {
-        speedTextView.setText("0");
         longitudeValue.setText(getResources().getString(R.string.unknownLongLat));
         latitudeValue.setText(getResources().getString(R.string.unknownLongLat));
         longitudeValue.setText("unknown");
